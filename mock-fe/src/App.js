@@ -52,7 +52,7 @@ const client = new ApolloClient({
 });
 
 const COMMENTS_SUBSCRIPTION = gql`
-  subscription Subscription($id: Float) {
+  subscription Subscription($id: Int) {
     getStatus(ID: $id) {
       id
       status
