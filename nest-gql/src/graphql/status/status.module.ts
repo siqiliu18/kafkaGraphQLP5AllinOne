@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { KafkaPubSub } from 'graphql-kafkajs-subscriptions';
-import { Kafka } from 'kafkajs';
+import { PubSub } from "graphql-subscriptions"
 import { StatusResolver } from './status.resolver';
 
 @Module({
@@ -8,14 +7,12 @@ import { StatusResolver } from './status.resolver';
     StatusResolver,
     {
       provide: 'PUB_SUB',
-      useValue: KafkaPubSub.create({
-        kafka: new Kafka({
-          brokers: ['localhost:9093', 'localhost:9093', 'localhost:9093'],
-        }),
-        topic: 'topic-status',
-        groupIdPrefix: 'demo1',
-      }),
+      useValue: new PubSub(),
     },
   ],
+  exports: [
+    StatusResolver,
+  ]
 })
-export class StatusModule {}
+
+export class StatusModule { }

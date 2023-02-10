@@ -1,0 +1,24 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Status {
+  cbeDna: ID
+  oppDna: String
+  scenario: String!
+  statuses: [Applet]!
+}
+
+type Applet {
+  key: String!
+  status: Float!
+}
+
+type Query {
+  getStatuses: [Status!]!
+  triggerPubSub: String!
+}
+
+type Subscription {
+  statusUpdated(cbeDna: String, oppDna: String): Status!
+}
