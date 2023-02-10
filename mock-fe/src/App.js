@@ -52,21 +52,32 @@ const client = new ApolloClient({
 });
 
 const COMMENTS_SUBSCRIPTION = gql`
-  subscription Subscription($id: Int) {
-    getStatus(ID: $id) {
-      id
+subscription Subscription($cbeDna: String, $oppDna: String) {
+  statusUpdated(cbeDna: $cbeDna, oppDna: $oppDna) {
+    cbeDNA
+    oppDNA
+    scenario
+    statuses {
       status
+      key
     }
   }
+}
 `;
 
-function LatestComment({ id }) {
+function LatestComment({ cbeDNA, oppDNA }) {
+  console.log("cbeDNA: ", cbeDNA);
+  console.log("oppDNA: ", oppDNA);
   const { data } = useSubscription(COMMENTS_SUBSCRIPTION, {
-    variables: { id },
+    variables: { cbeDna: cbeDNA, oppDna: oppDNA },
   });
-  let status = "Not Started";
+  console.log("gql data: ", data);
+  let status = 2;
   if (!!data) {
-    status = data.getStatus.status;
+    // status = data.getStatus.status;
+    const txTypeCdApplet = data.statusUpdated.statuses.find(item => item.key === "COACHINGCLIENTBEDESC")
+    console.log("txTypeCdApplet shouldbe COACHINGCLIENTDESC: ", txTypeCdApplet);
+    status = txTypeCdApplet.status;
   }
   return <TableCell>{status}</TableCell>;
 }
@@ -108,7 +119,7 @@ function Applet() {
     <div style={{ marginLeft: "20px", marginTop: "20px" }}>
       <Box border={1} height={250} width={600}>
         <TableRow>
-          <LatestComment id={5} />
+          <LatestComment oppDNA="23020321Pct2PuB" cbeDNA="G210212Aydi" />
           <TableCell>Client Buying Event Description</TableCell>
         </TableRow>
         <form onSubmit={handleSubmit}>

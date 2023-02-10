@@ -6,20 +6,75 @@ const { makeExecutableSchema } = require("@graphql-tools/schema");
 const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
 const { PubSub, withFilter } = require("graphql-subscriptions");
-const { KafkaPubSub } = require("graphql-kafkajs-subscriptions");
+// const { KafkaPubSub } = require("graphql-kafkajs-subscriptions");
 
-const pubsub = KafkaPubSub.create({
-  topic: "topic-status",
-  groupIdPrefix: "demo1",
-  kafka: new Kafka({
-    brokers: ["localhost:9093", "localhost:9094", "localhost:9095"],
-  }),
+// kafka consumer
+const kafka = new Kafka({
+  clientId: 'kafka-js-project4',
+  brokers: ['localhost:9093', 'localhost:9094', 'localhost:9095'],
 });
 
+const consumer = kafka.consumer({ groupId: 'test-group' });
+
+const run = async () => {
+  // Consuming
+  await consumer.connect();
+  await consumer.subscribe({ topic: 'topic-status' });
+  await consumer.subscribe({ topic: 'topic-people' });
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      console.log('????? ' + topic);
+      if (topic === 'topic-status') {
+        console.log({
+          partition,
+          offset: message.offset,
+          value: 'topic-status: ' + message.value.toString(),
+        });
+        let status = message.value.toString();
+        console.log('received message: ', status);
+        pubsub.publish(LATEST_STATUS, { statusUpdated: status });
+        console.log('>>> after pubsub.publish!');
+      } else if (topic === 'topic-people') {
+        console.log({
+          partition,
+          offset: message.offset,
+          value: 'people - ' + message.value.toString(),
+        });
+      }
+    },
+  });
+};
+
+run().catch(console.error);
+console.log('>>>>>>>> right after run().catch(console.error) <<<<<<<<<<<<<');
+
+const pubsub = new PubSub();
+const LATEST_STATUS = 'STATUS'
+
 let statuses = [
-  { id: 1, status: "NotStarted" },
-  { id: 2, status: "InProgress" },
-  { id: 3, status: "Completed" },
+  {
+    cbeDNA: "G123",
+    oppDNA: "",
+    scenario: "BE",
+    statuses: [
+      {
+        key: "CBEDESC",
+        status: 2
+      }
+    ]
+  },
+  {
+    cbeDNA: "G234",
+    oppDNA: "",
+    scenario: "BE",
+    statuses: [
+      {
+        key: "GENERALINFO",
+        status: 3
+      }
+    ]
+  }
 ];
 
 const typeDefs = `
@@ -28,8 +83,15 @@ const typeDefs = `
   }
 
   type Status {
-    id: Int
-    status: String
+    cbeDNA: String
+    oppDNA: String
+    scenario: String
+    statuses: [Applet]
+  }
+
+  type Applet {
+    key: String
+    status: Int
   }
 
   type Mutation {
@@ -37,7 +99,7 @@ const typeDefs = `
   }
 
   type Subscription {
-    getStatus(ID: Int): Status
+    statusUpdated(cbeDna: String, oppDna: String): Status
   }
 `;
 
@@ -48,32 +110,39 @@ const resolvers = {
 
   Mutation: {
     addStatus: (parent, args) => {
-      const newStatus = {
-        id: statuses.length + 1,
-        status: args.status,
-      };
-      statuses.push(newStatus);
-      return newStatus;
+      console.log("Mutation - args: ", args);
+      return statuses[1];
     },
   },
 
   Subscription: {
-    getStatus: {
+    statusUpdated: {
       resolve: (payload) => {
-        const { id, status } = JSON.parse(payload.value.toString());
-        return { id, status };
+        console.log("3. Payload: ", payload);
+        const event = JSON.parse(payload.statusUpdated);
+        const out = {
+          cbeDNA: event.CbeDNA,
+          oppDNA: event.OppDNA,
+          scenario: event.Scenario,
+          statuses: event.Statuses.map(item => {
+            return {
+              key: item.UniqueKey,
+              status: item.StatusCode
+            };
+          })
+        }
+        console.log("4. out: ", out);
+        return out
       },
-      subscribe: async (payload, variable) => {
-        const asyncPubSub = await pubsub;
-        return withFilter(
-          () => asyncPubSub.asyncIterator("topic-status"),
-          (payload, variables) => {
-            console.log("In filter, ", payload.value.toString());
-            const { id, status } = JSON.parse(payload.value.toString());
-            return id === variables.ID;
-          }
-        )(payload, variable);
-      },
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([LATEST_STATUS]),
+        (payload, variables) => {
+          console.log("1. Payload: ", payload);
+          const event = JSON.parse(payload.statusUpdated);
+          console.log("2. variables: ", variables);
+          return variables.cbeDna === event.CbeDNA;
+        }
+      )
     },
   },
 };

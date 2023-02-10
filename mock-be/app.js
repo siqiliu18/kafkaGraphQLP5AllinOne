@@ -44,19 +44,34 @@ app.post("/status", (req, res) => {
   console.log(firstBox);
   let secondBox = req.body.DelServTimeline;
   console.log(secondBox);
-  let statusRes = "";
+  let statusRes = 0;
   if (firstBox === "" && secondBox === "") {
     console.log("Not Started");
-    statusRes = "Not Started";
+    statusRes = 2;
   } else if (firstBox !== "" && secondBox !== "") {
     console.log("Completed");
-    statusRes = "Completed";
+    statusRes = 4;
   } else {
     console.log("In Progress");
-    statusRes = "In Progress";
+    statusRes = 3;
   }
 
-  const obj = { id: req.body.id, status: statusRes };
+  // const obj = { id: req.body.id, status: statusRes };
+  const obj = {
+    CbeDNA: "G210212Aydi",
+    OppDNA: "23020321Pct2PuB",
+    Scenario: "BE",
+    Statuses: [
+      {
+        UniqueKey: "COACHINGCLIENTBEDESC",
+        StatusCode: statusRes
+      },
+      {
+        UniqueKey: "PLAINTAKE",
+        StatusCode: statusRes
+      }
+    ]
+  }
   const jsonStr = JSON.stringify(obj);
   console.log("???", jsonStr);
 
