@@ -22,6 +22,7 @@
 
 ## nodejs-kafkajs-graphql-separate
 **Schema First**
+```
 const typeDefs = `
   type Query {
     getStatuses: [Status]
@@ -43,8 +44,10 @@ const typeDefs = `
     statusUpdated(cbeDna: String, oppDna: String): Status
   }
 `;
+```
 
 **mock-fe**
+```
 const COMMENTS_SUBSCRIPTION = gql`
 subscription Subscription($cbeDna: String, $oppDna: String) {
   statusUpdated(cbeDna: $cbeDna, oppDna: $oppDna) {
@@ -58,9 +61,11 @@ subscription Subscription($cbeDna: String, $oppDna: String) {
   }
 }
 `;
+```
 
 ## nestjs-kafkajs-graphql-separate
 **Code First**
+```
 @ObjectType()
 export class Status {
   @Field((type) => ID, { nullable: true })
@@ -83,8 +88,10 @@ export class Applet {
   @Field()
   status: number;
 }
+```
 
 **Generated Schema**
+```
 type Status {
   cbeDna: ID
   oppDna: String
@@ -105,8 +112,10 @@ type Query {
 type Subscription {
   statusUpdated(cbeDna: String, oppDna: String): Status!
 }
+```
 
 **mock-fe**
+```
 const COMMENTS_SUBSCRIPTION = gql`
 subscription Subscription($cbeDna: String, $oppDna: String) {
   statusUpdated(cbeDna: $cbeDna, oppDna: $oppDna) {
@@ -120,3 +129,4 @@ subscription Subscription($cbeDna: String, $oppDna: String) {
   }
 }
 `;
+```
