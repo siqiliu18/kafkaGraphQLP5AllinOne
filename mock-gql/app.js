@@ -10,16 +10,35 @@ const { KafkaPubSub } = require("graphql-kafkajs-subscriptions");
 
 const pubsub = KafkaPubSub.create({
   topic: "topic-status",
-  groupIdPrefix: "demo1",
+  groupIdPrefix: "nodejs-combine",
   kafka: new Kafka({
     brokers: ["localhost:9093", "localhost:9094", "localhost:9095"],
   }),
 });
 
 let statuses = [
-  { id: 1, status: "NotStarted" },
-  { id: 2, status: "InProgress" },
-  { id: 3, status: "Completed" },
+  {
+    cbeDna: "G123",
+    oppDna: "",
+    scenario: "BE",
+    statuses: [
+      {
+        key: "CBEDESC",
+        status: 2
+      }
+    ]
+  },
+  {
+    cbeDna: "G234",
+    oppDna: "",
+    scenario: "BE",
+    statuses: [
+      {
+        key: "GENERALINFO",
+        status: 3
+      }
+    ]
+  }
 ];
 
 const typeDefs = `
@@ -28,8 +47,15 @@ const typeDefs = `
   }
 
   type Status {
-    id: Int
-    status: String
+    cbeDna: String
+    oppDna: String
+    scenario: String
+    statuses: [Applet]
+  }
+
+  type Applet {
+    key: String
+    status: Int
   }
 
   type Mutation {
@@ -37,7 +63,7 @@ const typeDefs = `
   }
 
   type Subscription {
-    getStatus(ID: Int): Status
+    statusUpdated(cbeDna: String, oppDna: String): Status
   }
 `;
 
@@ -49,8 +75,15 @@ const resolvers = {
   Mutation: {
     addStatus: (parent, args) => {
       const newStatus = {
-        id: statuses.length + 1,
-        status: args.status,
+        cbeDna: "G345",
+        oppDna: "O123",
+        scenario: "OPP",
+        statuses: [
+          {
+            key: "CSCASSIGNMENT",
+            status: 3
+          }
+        ]
       };
       statuses.push(newStatus);
       return newStatus;
@@ -58,19 +91,34 @@ const resolvers = {
   },
 
   Subscription: {
-    getStatus: {
+    statusUpdated: {
       resolve: (payload) => {
-        const { id, status } = JSON.parse(payload.value.toString());
-        return { id, status };
+        console.log("In SUB's resolver: ", payload);
+        const event = JSON.parse(payload.value.toString());
+        console.log("In SUB's resolver: ", event);
+        const out = {
+          cbeDNA: event.CbeDNA,
+          oppDNA: event.OppDNA,
+          scenario: event.Scenario,
+          statuses: event.Statuses.map(item => {
+            return {
+              key: item.UniqueKey,
+              status: item.StatusCode
+            }
+          })
+        }
+        console.log("!!! out: ", out);
+        return out;
       },
       subscribe: async (payload, variable) => {
         const asyncPubSub = await pubsub;
         return withFilter(
           () => asyncPubSub.asyncIterator("topic-status"),
           (payload, variables) => {
-            console.log("In filter, ", payload.value.toString());
-            const { id, status } = JSON.parse(payload.value.toString());
-            return id === variables.ID;
+            console.log("In filter, payload = ", payload.value.toString());
+            const event = JSON.parse(payload.value.toString());
+            console.log("In filter, event = ", event);
+            return event.CbeDNA === variables.cbeDna;
           }
         )(payload, variable);
       },

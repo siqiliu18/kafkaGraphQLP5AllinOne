@@ -52,21 +52,28 @@ const client = new ApolloClient({
 });
 
 const COMMENTS_SUBSCRIPTION = gql`
-  subscription Subscription($id: Int) {
-    getStatus(ID: $id) {
-      id
+subscription Subscription($cbeDna: String, $oppDna: String) {
+  statusUpdated(cbeDna: $cbeDna, oppDna: $oppDna) {
+    cbeDna
+    oppDna
+    scenario
+    statuses {
+      key
       status
     }
   }
+}
 `;
 
-function LatestComment({ id }) {
+function LatestComment({ cbeDNA, oppDNA }) {
   const { data } = useSubscription(COMMENTS_SUBSCRIPTION, {
-    variables: { id },
+    variables: { cbeDna: cbeDNA, oppDna: oppDNA },
   });
-  let status = "Not Started";
+  let status = 2;
   if (!!data) {
-    status = data.getStatus.status;
+    const txTypeCdApplet = data.statusUpdated.statuses.find(item => item.key === "COACHINGCLIENTBEDESC")
+    console.log("txTypeCdApplet shouldbe COACHINGCLIENTDESC: ", txTypeCdApplet);
+    status = txTypeCdApplet.status;
   }
   return <TableCell>{status}</TableCell>;
 }
@@ -108,7 +115,7 @@ function Applet() {
     <div style={{ marginLeft: "20px", marginTop: "20px" }}>
       <Box border={1} height={250} width={600}>
         <TableRow>
-          <LatestComment id={5} />
+          <LatestComment oppDNA="23020321Pct2PuB" cbeDNA="G210212Aydi" />
           <TableCell>Client Buying Event Description</TableCell>
         </TableRow>
         <form onSubmit={handleSubmit}>
