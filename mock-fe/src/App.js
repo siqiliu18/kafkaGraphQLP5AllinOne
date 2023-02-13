@@ -13,6 +13,10 @@ import {
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { TableCell, TableRow } from "@material-ui/core";
+import requiredNotStartedIcon from './img/updatedStatus-requiredNotStarted.svg';
+import partiallyCompleteIcon from './img/updatedStatus-partiallyComplete.svg';
+import fullyCompleteIcon from './img/updatedStatus-fullyComplete.svg';
+import notApplicableIcon from './img/updatedStatus-notApplicable.svg';
 
 // import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 // import { createClient } from "graphql-ws";
@@ -52,23 +56,41 @@ const client = new ApolloClient({
 });
 
 const COMMENTS_SUBSCRIPTION = gql`
-  subscription Subscription($id: Float) {
-    getStatus(ID: $id) {
-      id
+subscription Subscription($cbeDna: String, $oppDna: String) {
+  statusUpdated(cbeDna: $cbeDna, oppDna: $oppDna) {
+    cbeDna
+    oppDna
+    scenario
+    statuses {
+      key
       status
     }
   }
+}
 `;
 
-function LatestComment({ id }) {
+function LatestComment({ cbeDNA, oppDNA }) {
   const { data } = useSubscription(COMMENTS_SUBSCRIPTION, {
-    variables: { id },
+    variables: { cbeDna: cbeDNA, oppDna: oppDNA },
   });
-  let status = "Not Started";
+  let status = 2;
   if (!!data) {
-    status = data.getStatus.status;
+    const txTypeCdApplet = data.statusUpdated.statuses.find(item => item.key === "COACHINGCLIENTBEDESC")
+    console.log("txTypeCdApplet shouldbe COACHINGCLIENTDESC: ", txTypeCdApplet);
+    status = txTypeCdApplet.status;
   }
-  return <TableCell>{status}</TableCell>;
+
+  console.log(status);
+
+  if (status === 2) {
+    return <TableCell><img src={requiredNotStartedIcon} alt="requiredNotStartedIcon" style={{ width: "15px" }} /></TableCell>
+  } else if (status === 3) {
+    return <TableCell><img src={partiallyCompleteIcon} alt="partiallyCompleteIcon" style={{ width: "15px" }} /></TableCell>
+  } else if (status === 4) {
+    return <TableCell><img src={fullyCompleteIcon} alt="fullyCompleteIcon" style={{ width: "15px" }} /></TableCell>
+  }
+
+  return <TableCell><img src={notApplicableIcon} alt="notApplicableIcon" style={{ width: "15px" }} /></TableCell>;
 }
 
 function Applet() {
@@ -108,7 +130,7 @@ function Applet() {
     <div style={{ marginLeft: "20px", marginTop: "20px" }}>
       <Box border={1} height={250} width={600}>
         <TableRow>
-          <LatestComment id={5} />
+          <LatestComment oppDNA="23020321Pct2PuB" cbeDNA="G210212Aydi" />
           <TableCell>Client Buying Event Description</TableCell>
         </TableRow>
         <form onSubmit={handleSubmit}>

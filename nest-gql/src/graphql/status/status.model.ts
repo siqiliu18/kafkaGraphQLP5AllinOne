@@ -1,20 +1,34 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Status {
-  @Field({ nullable: true })
-  id: number;
+  @Field((type) => ID, { nullable: true })
+  cbeDna: string;
 
   @Field({ nullable: true })
-  status: string;
+  oppDna: string;
 
-  constructor(i: number, s: string) {
-    this.id = i;
-    this.status = s;
-  }
+  @Field()
+  scenario: string; // will be either `Opportunity` or `BuyingEvent`
+
+  @Field((type) => [Applet], { nullable: "items" }) // an empty array [] is a valid return
+  statuses: Applet[];
 }
 
+@ObjectType()
+export class Applet {
+  @Field()
+  key: string;
+  @Field()
+  status: number;
+}
+
+// spec of payload we get from Kafka
 export type StatusEvent = {
-  id: number;
-  status: string;
+  CbeDNA: string;
+  OppDNA: string;
+  Scenario: string;
+  RequestID: string;
+  Namespace: string;
+  Statuses: { UniqueKey: string; StatusCode: number }[];
 };
