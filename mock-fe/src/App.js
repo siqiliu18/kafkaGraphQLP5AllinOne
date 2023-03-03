@@ -13,6 +13,10 @@ import {
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { TableCell, TableRow } from "@material-ui/core";
+import requiredNotStartedIcon from './img/updatedStatus-requiredNotStarted.svg';
+import partiallyCompleteIcon from './img/updatedStatus-partiallyComplete.svg';
+import fullyCompleteIcon from './img/updatedStatus-fullyComplete.svg';
+import notApplicableIcon from './img/updatedStatus-notApplicable.svg';
 
 // import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 // import { createClient } from "graphql-ws";
@@ -79,7 +83,17 @@ function LatestComment({ cbeDNA, oppDNA }) {
     console.log("txTypeCdApplet shouldbe COACHINGCLIENTDESC: ", txTypeCdApplet);
     status = txTypeCdApplet.status;
   }
-  return <TableCell>{status}</TableCell>;
+  console.log(status);
+
+  if (status === 2) {
+    return <TableCell><img src={requiredNotStartedIcon} alt="requiredNotStartedIcon" style={{ width: "15px" }} /></TableCell>
+  } else if (status === 3) {
+    return <TableCell><img src={partiallyCompleteIcon} alt="partiallyCompleteIcon" style={{ width: "15px" }} /></TableCell>
+  } else if (status === 4) {
+    return <TableCell><img src={fullyCompleteIcon} alt="fullyCompleteIcon" style={{ width: "15px" }} /></TableCell>
+  }
+
+  return <TableCell><img src={notApplicableIcon} alt="notApplicableIcon" style={{ width: "15px" }} /></TableCell>;
 }
 
 function Applet() {

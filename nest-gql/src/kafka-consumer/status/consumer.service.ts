@@ -14,7 +14,7 @@ export class StatusConsumerService implements OnApplicationShutdown, OnModuleIni
 
     async consume(topic: ConsumerSubscribeTopic, config: ConsumerRunConfig) {
         const consumer = this.kafka.consumer({
-            groupId: 'status-consumer-group',
+            groupId: 'consumer-group-2',
         })
         await consumer.connect();
         await consumer.subscribe(topic);
