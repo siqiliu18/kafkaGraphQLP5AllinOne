@@ -130,3 +130,15 @@ subscription Subscription($cbeDna: String, $oppDna: String) {
 }
 `;
 ```
+--------------------------------------
+## Some React related notes
+About expres post request
+https://www.positronx.io/react-axios-tutorial-make-http-get-post-requests/ https://stackoverflow.com/questions/54952355/how-to-post-data-from-react-to-express https://stackoverflow.com/questions/51415439/how-can-i-add-raw-data-body-to-an-axios-request https://jasonwatmore.com/post/2020/02/01/react-fetch-http-post-request-examples
+
+Downgrade react-script version < 5 to avoid webpack error?
+
+Box
+https://levelup.gitconnected.com/using-the-box-component-in-material-ui-to-easily-style-your-project-532894edd205 https://www.geeksforgeeks.org/how-to-use-box-component-in-reactjs/
+
+graphQL
+Must have the Query section https://stackoverflow.com/questions/54322029/graphqljs-query-root-type-must-be-provided
