@@ -142,3 +142,7 @@ https://levelup.gitconnected.com/using-the-box-component-in-material-ui-to-easil
 
 graphQL
 Must have the Query section https://stackoverflow.com/questions/54322029/graphqljs-query-root-type-must-be-provided
+
+--------------------------------------
+## Some nodejs backend related notes
+Important link about header and cors https://stackoverflow.com/a/54952744
