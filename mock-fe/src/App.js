@@ -13,6 +13,11 @@ import {
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { TableCell, TableRow } from "@material-ui/core";
+import requiredNotStartedIcon from "./img/updatedStatus-requiredNotStarted.svg";
+import partiallyCompleteIcon from "./img/updatedStatus-partiallyComplete.svg";
+import fullyCompleteIcon from "./img/updatedStatus-fullyComplete.svg";
+import notApplicableIcon from "./img/updatedStatus-notApplicable.svg";
+import "./App.css";
 
 // import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 // import { createClient } from "graphql-ws";
@@ -68,7 +73,45 @@ function LatestComment({ id }) {
   if (!!data) {
     status = data.getStatus.status;
   }
-  return <TableCell>{status}</TableCell>;
+
+  if (status === "Not Started") {
+    return (
+      <img
+        className="img-class"
+        src={requiredNotStartedIcon}
+        alt="requiredNotStartedIcon"
+        style={{ width: "15px", marginLeft: "5px" }}
+      />
+    );
+  } else if (status === "In Progress") {
+    return (
+      <img
+        className="img-class"
+        src={partiallyCompleteIcon}
+        alt="partiallyCompleteIcon"
+        style={{ width: "15px", marginLeft: "5px" }}
+      />
+    );
+  } else if (status === "Completed") {
+    return (
+      <img
+        className="img-class"
+        src={fullyCompleteIcon}
+        alt="fullyCompleteIcon"
+        style={{ width: "15px", marginLeft: "5px" }}
+      />
+    );
+  }
+
+  return (
+    <TableCell>
+      <img
+        src={notApplicableIcon}
+        alt="notApplicableIcon"
+        style={{ width: "15px" }}
+      />
+    </TableCell>
+  );
 }
 
 function Applet() {
@@ -105,46 +148,38 @@ function Applet() {
   };
 
   return (
-    <div style={{ marginLeft: "20px", marginTop: "20px" }}>
-      <Box border={1} height={250} width={600}>
-        <TableRow>
-          <LatestComment id={5} />
-          <TableCell>Client Buying Event Description</TableCell>
-        </TableRow>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>
-              Overall Opportunity:
-              <div>
-                <input
-                  type="text"
-                  value={state.OverallOpp}
-                  onChange={(e) =>
-                    stateSet({ ...state, OverallOpp: e.target.value })
-                  }
-                  style={{ height: "40px", width: "90%" }}
-                />
-              </div>
-            </label>
-          </div>
-          <div>
-            <label>
-              Delivery & Service Timelines:
-              <div>
-                <input
-                  type="text"
-                  value={state.DelServTimeline}
-                  onChange={(e) =>
-                    stateSet({ ...state, DelServTimeline: e.target.value })
-                  }
-                  style={{ height: "40px", width: "90%" }}
-                />
-              </div>
-            </label>
-          </div>
-          <input type="submit" value="Submit" />
-        </form>
-      </Box>
+    <div className="container">
+      <div className="table-name">
+        <LatestComment id={5} />
+        Client Buying Event Description
+      </div>
+      <form className="add-form" onSubmit={handleSubmit}>
+        <div className="form-control">
+          <label>Overall Opportunity:</label>
+          <input
+            type="text"
+            value={state.OverallOpp}
+            onChange={(e) => stateSet({ ...state, OverallOpp: e.target.value })}
+            style={{ height: "40px", width: "90%" }}
+          />
+        </div>
+        <div className="form-control">
+          <label>Delivery & Service Timelines:</label>
+          <input
+            type="text"
+            value={state.DelServTimeline}
+            onChange={(e) =>
+              stateSet({ ...state, DelServTimeline: e.target.value })
+            }
+            style={{ height: "40px", width: "90%" }}
+          />
+        </div>
+        <input
+          className="form-control-check btn"
+          type="submit"
+          value="Submit"
+        />
+      </form>
     </div>
   );
 }
