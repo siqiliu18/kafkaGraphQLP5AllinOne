@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import axios from "axios";
 import Box from "@material-ui/core/Box";
 import {
@@ -104,28 +104,28 @@ function LatestComment({ id }) {
   }
 
   return (
-    <TableCell>
-      <img
-        src={notApplicableIcon}
-        alt="notApplicableIcon"
-        style={{ width: "15px" }}
-      />
-    </TableCell>
+    <img
+      src={notApplicableIcon}
+      alt="notApplicableIcon"
+      style={{ width: "15px" }}
+    />
   );
 }
 
 function Applet() {
-  const [state, stateSet] = useState({
-    OverallOpp: "",
-    DelServTimeline: "",
-  });
+  // const [state, stateSet] = useState({
+  //   OverallOpp: "",
+  //   DelServTimeline: "",
+  // });
+  const overallOpp = useRef("");
+  const delServTimeline = useRef("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
     const userObject = {
-      OverallOpp: state.OverallOpp,
-      DelServTimeline: state.DelServTimeline,
+      OverallOpp: overallOpp.current.value,
+      DelServTimeline: delServTimeline.current.value,
     };
 
     console.log(userObject);
@@ -136,15 +136,15 @@ function Applet() {
       headers: { "Content-Type": "application/json" },
       data: {
         id: 5,
-        OverallOpp: state.OverallOpp,
-        DelServTimeline: state.DelServTimeline,
+        OverallOpp: overallOpp.current.value,
+        DelServTimeline: delServTimeline.current.value,
       },
     });
 
-    stateSet({
-      OverallOpp: state.OverallOpp,
-      DelServTimeline: state.DelServTimeline,
-    });
+    // stateSet({
+    //   OverallOpp: state.OverallOpp,
+    //   DelServTimeline: state.DelServTimeline,
+    // });
   };
 
   return (
@@ -157,20 +157,22 @@ function Applet() {
         <div className="form-control">
           <label>Overall Opportunity:</label>
           <input
+            ref={overallOpp}
             type="text"
-            value={state.OverallOpp}
-            onChange={(e) => stateSet({ ...state, OverallOpp: e.target.value })}
+            // value={state.OverallOpp}
+            // onChange={(e) => stateSet({ ...state, OverallOpp: e.target.value })}
             style={{ height: "40px", width: "90%" }}
           />
         </div>
         <div className="form-control">
           <label>Delivery & Service Timelines:</label>
           <input
+            ref={delServTimeline}
             type="text"
-            value={state.DelServTimeline}
-            onChange={(e) =>
-              stateSet({ ...state, DelServTimeline: e.target.value })
-            }
+            // value={state.DelServTimeline}
+            // onChange={(e) =>
+            //   stateSet({ ...state, DelServTimeline: e.target.value })
+            // }
             style={{ height: "40px", width: "90%" }}
           />
         </div>
