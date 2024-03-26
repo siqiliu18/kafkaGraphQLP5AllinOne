@@ -113,10 +113,6 @@ function LatestComment({ id }) {
 }
 
 function Applet() {
-  // const [state, stateSet] = useState({
-  //   OverallOpp: "",
-  //   DelServTimeline: "",
-  // });
   const overallOpp = useRef("");
   const delServTimeline = useRef("");
 
@@ -140,11 +136,6 @@ function Applet() {
         DelServTimeline: delServTimeline.current.value,
       },
     });
-
-    // stateSet({
-    //   OverallOpp: state.OverallOpp,
-    //   DelServTimeline: state.DelServTimeline,
-    // });
   };
 
   return (
@@ -159,8 +150,6 @@ function Applet() {
           <input
             ref={overallOpp}
             type="text"
-            // value={state.OverallOpp}
-            // onChange={(e) => stateSet({ ...state, OverallOpp: e.target.value })}
             style={{ height: "40px", width: "90%" }}
           />
         </div>
@@ -169,10 +158,6 @@ function Applet() {
           <input
             ref={delServTimeline}
             type="text"
-            // value={state.DelServTimeline}
-            // onChange={(e) =>
-            //   stateSet({ ...state, DelServTimeline: e.target.value })
-            // }
             style={{ height: "40px", width: "90%" }}
           />
         </div>
